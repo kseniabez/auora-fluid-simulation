@@ -2,13 +2,6 @@ import numpy as np
 
 
 def getGradient(f, dx):
-    """
-    Calculate the gradients of a field
-        f        is a matrix of the field
-        dx       is the cell size
-        f_dx     is a matrix of derivative of f in the x-direction
-        f_dy     is a matrix of derivative of f in the y-direction
-    """
     # directions for np.roll()
     R = -1  # right
     L = 1  # left
@@ -20,13 +13,6 @@ def getGradient(f, dx):
 
 
 def slopeLimit(f, dx, f_dx, f_dy):
-    """
-    Apply slope limiter to slopes
-        f        is a matrix of the field
-        dx       is the cell size
-        f_dx     is a matrix of derivative of f in the x-direction
-        f_dy     is a matrix of derivative of f in the y-direction
-    """
     # directions for np.roll()
     R = -1  # right
     L = 1  # left
@@ -72,18 +58,6 @@ def slopeLimit(f, dx, f_dx, f_dy):
 
 
 def extrapolateInSpaceToFace(f, f_dx, f_dy, dx):
-    """
-    Calculate the gradients of a field
-        f        is a matrix of the field
-        f_dx     is a matrix of the field x-derivatives
-        f_dy     is a matrix of the field y-derivatives
-        dx       is the cell size
-        f_XL     is a matrix of spatial-extrapolated values on `left' face along x-axis
-        f_XR     is a matrix of spatial-extrapolated values on `right' face along x-axis
-        f_YL     is a matrix of spatial-extrapolated values on `left' face along y-axis
-        f_YR     is a matrix of spatial-extrapolated values on `right' face along y-axis
-    """
-    # directions for np.roll()
     R = -1  # right
     L = 1  # left
 
@@ -99,19 +73,9 @@ def extrapolateInSpaceToFace(f, f_dx, f_dy, dx):
 
 
 def applyFluxes(F, flux_F_X, flux_F_Y, dx, dt):
-    """
-    Apply fluxes to conserved variables
-        F        is a matrix of the conserved variable field
-        flux_F_X is a matrix of the x-dir fluxes
-        flux_F_Y is a matrix of the y-dir fluxes
-        dx       is the cell size
-        dt       is the timestep
-    """
-    # directions for np.roll()
     R = -1  # right
     L = 1  # left
 
-    # update solution
     F += -dt * dx * flux_F_X
     F += dt * dx * np.roll(flux_F_X, L, axis=0)
     F += -dt * dx * flux_F_Y
@@ -121,22 +85,6 @@ def applyFluxes(F, flux_F_X, flux_F_Y, dx, dt):
 
 
 def getFlux(rho_L, rho_R, vx_L, vx_R, vy_L, vy_R, P_L, P_R, gamma):
-    """
-    Calculate fluxed between 2 states with local Lax-Friedrichs/Rusanov rule
-        rho_L        is a matrix of left-state  density
-        rho_R        is a matrix of right-state density
-        vx_L         is a matrix of left-state  x-velocity
-        vx_R         is a matrix of right-state x-velocity
-        vy_L         is a matrix of left-state  y-velocity
-        vy_R         is a matrix of right-state y-velocity
-        P_L          is a matrix of left-state  pressure
-        P_R          is a matrix of right-state pressure
-        gamma        is the ideal gas gamma
-        flux_Mass    is the matrix of mass fluxes
-        flux_Momx    is the matrix of x-momentum fluxes
-        flux_Momy    is the matrix of y-momentum fluxes
-        flux_Energy  is the matrix of energy fluxes
-    """
 
     # left and right energies
     en_L = P_L / (gamma - 1) + 0.5 * rho_L * (vx_L**2 + vy_L**2)
