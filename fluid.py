@@ -26,7 +26,7 @@ class Fluid:
         self.rho, self.vx, self.vy, self.P = self.init_conditions()
         self.Mass, self.Momx, self.Momy, self.Energy = self.getConserved()
 
-        self.cmap = LinearSegmentedColormap.from_list("custom_rgb", [(0.0, 0.0, 0.0), (0.5, 1.0, 0.0)])
+        self.cmap = LinearSegmentedColormap.from_list("custom_rgb", [(0.0, 0.0, 0.0), (1.0, 1.0, 1.0)])
         self.fig = plt.figure(figsize=(4, 4), dpi=80)
 
     def init_conditions(self):
@@ -35,7 +35,14 @@ class Fluid:
         sigma = 0.05 / np.sqrt(2.0)
         density = 1.0 + (np.abs(self.Y - 0.5 * self.boxsize) < 0.005 * self.boxsize)
         vx = -0.5 + (np.abs(self.Y - 0.5 * self.boxsize) < 0.005 * self.boxsize)
-        vy = w0 * np.sin(8 * np.pi * self.X) * np.exp(-((self.Y - 0.595 * self.boxsize) ** 2) / (2 * sigma**2))
+
+        vy_base = w0 * np.sin(4 * np.pi * self.X) * np.exp(-((self.Y - 0.595 * self.boxsize) ** 2) / (2 * sigma ** 2))
+
+        vy_variability = 0.05 * np.random.randn(*self.X.shape)
+        vy = vy_base + vy_variability
+
+        # vy = w0 * np.sin(4 * np.pi * self.X) * np.exp(-((self.Y - 0.595 * self.boxsize) ** 2) / (2 * sigma**2))
+
         P = 2.5 * np.ones_like(self.X)
 
         return density, vx, vy, P
