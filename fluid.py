@@ -68,7 +68,6 @@ class Fluid:
 
         self.rho, self.vx, self.vy, self.P = self.getPrimitive()
 
-        # Compute gradients
         rho_dx, rho_dy = getGradient(self.rho, self.dx)
         vx_dx, vx_dy = getGradient(self.vx, self.dx)
         vy_dx, vy_dy = getGradient(self.vy, self.dx)
@@ -80,7 +79,6 @@ class Fluid:
             vy_dx, vy_dy = slopeLimit(self.vy, self.dx, vy_dx, vy_dy)
             P_dx, P_dy = slopeLimit(self.P, self.dx, P_dx, P_dy)
 
-        # Extrapolate half step in time
         rho_p = self.rho - 0.5 * dt * (
             self.vx * rho_dx + self.rho * vx_dx + self.vy * rho_dy + self.rho * vy_dy
         )
@@ -88,17 +86,14 @@ class Fluid:
         vy_p = self.vy - 0.5 * dt * (self.vx * vy_dx + self.vy * vy_dy + (1 / self.rho) * P_dy)
         P_p = self.P - 0.5 * dt * (self.gamma * self.P * (vx_dx + vy_dy) + self.vx * P_dx + self.vy * P_dy)
 
-        # Spatial extrapolation
         rho_XL, rho_XR, rho_YL, rho_YR = extrapolateInSpaceToFace(rho_p, rho_dx, rho_dy, self.dx)
         vx_XL, vx_XR, vx_YL, vx_YR = extrapolateInSpaceToFace(vx_p, vx_dx, vx_dy, self.dx)
         vy_XL, vy_XR, vy_YL, vy_YR = extrapolateInSpaceToFace(vy_p, vy_dx, vy_dy, self.dx)
         P_XL, P_XR, P_YL, P_YR = extrapolateInSpaceToFace(P_p, P_dx, P_dy, self.dx)
 
-        # Fluxes
         fMx, fMMx, fMMy, fE = getFlux(rho_XL, rho_XR, vx_XL, vx_XR, vy_XL, vy_XR, P_XL, P_XR, self.gamma)
         fMy, fMMY, fMMX, fEY = getFlux(rho_YL, rho_YR, vy_YL, vy_YR, vx_YL, vx_YR, P_YL, P_YR, self.gamma)
 
-        # Apply fluxes
         self.Mass = applyFluxes(self.Mass, fMx, fMy, self.dx, dt)
         self.Momx = applyFluxes(self.Momx, fMMx, fMMX, self.dx, dt)
         self.Momy = applyFluxes(self.Momy, fMMy, fMMY, self.dx, dt)
@@ -123,7 +118,6 @@ class Fluid:
                 self.visualize()
                 self.outputCount += 1
 
-        plt.savefig("finitevolume.png", dpi=240)
         plt.show()
 
     def visualize(self, save=True):
